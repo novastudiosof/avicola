@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avícola R&R | Panel</title>
+<link rel="icon" href="assets/logo.jpg" />
+<link rel="stylesheet" href="css/style.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <img src="assets/logo.jpg" alt="Avícola R&R" />
+          <span>Avícola<br/>R&amp;R</span>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú">☰</button>
+      </div>
+      <nav class="nav-links" id="navLinks">
+        <button class="nav-item active" data-view="registros">📋 Registros</button>
+        <button class="nav-item" data-view="reportes">📊 Reportes</button>
+        <button class="nav-item" data-view="ajustes">⚙️ Ajustes</button>
+        <div class="sidebar-footer">
+          <button class="nav-item" id="logoutBtn">🚪 Cerrar sesión</button>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <h2 id="viewTitle">Registros de producción</h2>
+        <div class="welcome">Bienvenido, <strong id="welcomeName">Juan</strong> 👋</div>
+      </div>
+
+      <div class="content">
+        <!-- ==================== VISTA REGISTROS ==================== -->
+        <section id="view-registros">
+          <div class="card registro-entry">
+            <img src="assets/logo.jpg" alt="Avícola R&R" class="registro-entry-logo" />
+            <h3>Capturar producción del día</h3>
+            <p>Registra los flanes y unidades producidas por tipo de huevo, junto con las bajas. Podrás ver el detalle, editar o exportar todo desde el módulo de <strong>Reportes</strong>.</p>
+            <button class="btn btn-primary" id="btnNuevoRegistro">+ Nuevo registro</button>
+            <div class="registro-toast" id="registroToast">✅ Registro guardado correctamente</div>
+          </div>
+        </section>
+
+        <!-- ==================== VISTA REPORTES ==================== -->
+        <section id="view-reportes" style="display:none;">
+          <div class="card" style="margin-bottom:20px;">
+            <div class="filters-row">
+              <div class="field">
+                <label>Desde</label>
+                <input type="date" id="filtroDesde" />
+              </div>
+              <div class="field">
+                <label>Hasta</label>
+                <input type="date" id="filtroHasta" />
+              </div>
+              <div class="field">
+                <label>Tipo de huevo</label>
+                <select id="filtroTipo">
+                  <option value="">Todos</option>
+                </select>
+              </div>
+              <button class="btn btn-secondary" id="btnAplicarFiltro">Aplicar filtro</button>
+              <button class="btn btn-secondary" id="btnLimpiarFiltro">Limpiar</button>
+              <div style="margin-left:auto; display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn btn-secondary" id="btnExportar">⬇ Exportar a Excel</button>
+                <button class="btn btn-whatsapp" id="btnEnviarWhatsapp">📲 Enviar por WhatsApp</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-grid" id="statsReportes"></div>
+
+          <div class="card" style="margin-bottom:20px;">
+            <div style="font-weight:700; color:var(--color-brown-dark); margin-bottom:10px;">Producción neta por tipo de huevo</div>
+            <div class="chart-bars" id="chartTipos"></div>
+          </div>
+
+          <div class="card">
+            <div style="font-weight:700; color:var(--color-brown-dark); margin-bottom:10px;">Detalle del período (agrupado por día)</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Producción por tipo</th>
+                    <th>Total</th>
+                    <th>Bajas</th>
+                    <th>Neto</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tablaReportes"></tbody>
+              </table>
+              <div id="emptyReportes" class="empty-state" style="display:none;">No hay registros en el rango seleccionado.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VISTA AJUSTES ==================== -->
+        <section id="view-ajustes" style="display:none;">
+          <div class="card" style="max-width:520px; margin-bottom:20px;">
+            <h3 style="margin-top:0; color:var(--color-brown-dark);">Reportes por WhatsApp</h3>
+            <p style="color:var(--color-text-muted); font-size:14px;">Número al que se enviarán los reportes cuando uses "Enviar por WhatsApp" en el módulo de Reportes.</p>
+            <div class="field">
+              <label for="whatsappReportesInput">Número de WhatsApp</label>
+              <input type="tel" id="whatsappReportesInput" placeholder="Ej: 3193034610" />
+            </div>
+            <button class="btn btn-primary" id="btnGuardarAjustes">Guardar número</button>
+            <div class="app-toast" id="ajustesToast">✅ Número actualizado</div>
+          </div>
+
+          <div class="card" style="max-width:520px;">
+            <h3 style="margin-top:0; color:var(--color-brown-dark);">¿Necesitas ayuda?</h3>
+            <p style="color:var(--color-text-muted); font-size:14px;">Contáctanos directamente por WhatsApp para soporte técnico del sistema.</p>
+            <button class="btn btn-whatsapp" id="btnSoporte">🛟 Contactar soporte</button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="app-footer">
+        <div class="footer-credit">Desarrollado por <strong>NOVA STUDIO</strong></div>
+        <div class="footer-contact">Contáctanos</div>
+        <a class="footer-link" href="https://wa.me/573193034610" target="_blank" rel="noopener">📱 +57 319 303 4610</a>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL NUEVO / EDITAR REGISTRO ==================== -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">Nuevo registro de producción</h3>
+      <form id="registroForm">
+        <input type="hidden" id="registroId" />
+        <div class="form-grid">
+          <div class="field full">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required />
+          </div>
+          <div class="field full">
+            <label for="tipo">Tipo de huevo</label>
+            <select id="tipo" required></select>
+          </div>
+        </div>
+
+        <div class="section-title">Producción total (antes de bajas)</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="totalFlanes">Flanes (30 uds c/u)</label>
+            <input type="number" id="totalFlanes" min="0" value="0" required />
+          </div>
+          <div class="field">
+            <label for="totalUnidades">Unidades sueltas</label>
+            <input type="number" id="totalUnidades" min="0" value="0" required />
+          </div>
+        </div>
+
+        <div class="section-title">Bajas (huevos rotos / dañados / descartados)</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="bajaFlanes">Flanes de baja</label>
+            <input type="number" id="bajaFlanes" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label for="bajaUnidades">Unidades de baja</label>
+            <input type="number" id="bajaUnidades" min="0" value="0" />
+          </div>
+        </div>
+
+        <div class="field full" style="margin-top:14px;">
+          <label for="observaciones">Observaciones (opcional)</label>
+          <input type="text" id="observaciones" placeholder="Ej: galpón 2, turno mañana..." />
+        </div>
+
+        <div class="card" style="background:#fff2e2; margin-top:16px; box-shadow:none; padding:12px 16px;">
+          <div style="font-size:13px; color:var(--color-text-muted);">Neto estimado</div>
+          <div style="font-size:22px; font-weight:800; color:var(--color-green-dark);" id="netoPreview">0 unidades</div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar registro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/whatsapp.js"></script>
+  <script src="js/registros.js"></script>
+  <script src="js/reportes.js"></script>
+  <script src="js/ajustes.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

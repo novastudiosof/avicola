@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avícola R&R | Iniciar sesión</title>
+<link rel="icon" href="assets/logo.jpg" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-decor">
+      <div class="sun"></div>
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+
+      <div class="egg-float egg-1"></div>
+      <div class="egg-float egg-2"></div>
+      <div class="egg-float egg-3"></div>
+      <div class="egg-float egg-4"></div>
+
+      <div id="feathers"></div>
+
+      <div class="hen-wrap">
+        <svg viewBox="0 0 200 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="90" cy="140" rx="46" ry="34" fill="#f5892e" stroke="#2b2320" stroke-width="4"/>
+          <path d="M60 60 C40 70 30 100 45 130 C60 155 100 160 120 135 C140 110 130 70 105 55 C90 46 72 50 60 60 Z" fill="#8b5e3c" stroke="#2b2320" stroke-width="4"/>
+          <circle cx="108" cy="70" r="8" fill="#2b2320"/>
+          <path d="M120 78 L145 88 L120 96 Z" fill="#e8402a" stroke="#2b2320" stroke-width="3"/>
+          <path d="M95 45 C98 30 108 28 112 35 C118 25 130 30 126 42 C136 38 142 50 130 58 C120 64 100 62 95 45 Z" fill="#e8402a" stroke="#2b2320" stroke-width="3"/>
+          <path d="M55 150 L45 165 L60 162 Z" fill="#ffd23f" stroke="#2b2320" stroke-width="3"/>
+          <path d="M100 150 L95 168 L112 160 Z" fill="#ffd23f" stroke="#2b2320" stroke-width="3"/>
+        </svg>
+      </div>
+
+      <div class="grass"></div>
+    </div>
+
+    <div class="login-card">
+      <div class="card-scene">
+        <div class="mini-sun"></div>
+        <div class="mini-egg mini-egg-1"></div>
+        <div class="mini-egg mini-egg-2"></div>
+        <div class="mini-egg mini-egg-3"></div>
+        <div class="mini-hen">
+          <svg viewBox="0 0 200 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="90" cy="140" rx="46" ry="34" fill="#f5892e" stroke="#2b2320" stroke-width="4"/>
+            <path d="M60 60 C40 70 30 100 45 130 C60 155 100 160 120 135 C140 110 130 70 105 55 C90 46 72 50 60 60 Z" fill="#8b5e3c" stroke="#2b2320" stroke-width="4"/>
+            <circle cx="108" cy="70" r="8" fill="#2b2320"/>
+            <path d="M120 78 L145 88 L120 96 Z" fill="#e8402a" stroke="#2b2320" stroke-width="3"/>
+            <path d="M95 45 C98 30 108 28 112 35 C118 25 130 30 126 42 C136 38 142 50 130 58 C120 64 100 62 95 45 Z" fill="#e8402a" stroke="#2b2320" stroke-width="3"/>
+            <path d="M55 150 L45 165 L60 162 Z" fill="#ffd23f" stroke="#2b2320" stroke-width="3"/>
+            <path d="M100 150 L95 168 L112 160 Z" fill="#ffd23f" stroke="#2b2320" stroke-width="3"/>
+          </svg>
+        </div>
+        <div class="mini-grass"></div>
+      </div>
+
+      <img src="assets/logo.jpg" alt="Avícola R&R" class="login-logo" />
+      <h1>Avícola R&R</h1>
+      <p class="subtitle">Sistema de control de producción de huevos</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="user">Usuario</label>
+          <input type="text" id="user" autocomplete="username" placeholder="Usuario" required />
+        </div>
+        <div class="field">
+          <label for="pass">Contraseña</label>
+          <input type="password" id="pass" autocomplete="current-password" placeholder="Contraseña" required />
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+      </form>
+
+      <div class="demo-hint">
+        Demo local · Usuario: <strong>adminjuan</strong> · Contraseña: <strong>avicolar&amp;r2026</strong>
+      </div>
+
+      <footer class="app-footer login-footer">
+        <div class="footer-credit">Desarrollado por <strong>NOVA STUDIO</strong></div>
+        <div class="footer-contact">Contáctanos</div>
+        <a class="footer-link" href="https://wa.me/573193034610" target="_blank" rel="noopener">📱 +57 319 303 4610</a>
+      </footer>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    // feathers de fondo
+    const featherContainer = document.getElementById('feathers');
+    const featherEmojis = ['🪶'];
+    for (let i = 0; i < 10; i++) {
+      const f = document.createElement('div');
+      f.className = 'feather';
+      f.textContent = featherEmojis[0];
+      f.style.left = Math.random() * 100 + 'vw';
+      f.style.animationDuration = (8 + Math.random() * 10) + 's';
+      f.style.animationDelay = (Math.random() * 10) + 's';
+      f.style.fontSize = (16 + Math.random() * 14) + 'px';
+      featherContainer.appendChild(f);
+    }
+
+    const form = document.getElementById('loginForm');
+    const errorBox = document.getElementById('loginError');
+
+    // si ya hay sesión activa, ir directo al dashboard
+    if (sessionStorage.getItem('avicola_session')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = document.getElementById('user').value.trim();
+      const pass = document.getElementById('pass').value;
+
+      if (user === 'adminjuan' && pass === 'avicolar&r2026') {
+        sessionStorage.setItem('avicola_session', JSON.stringify({ nombre: 'Juan', usuario: user }));
+        window.location.href = 'dashboard.html';
+      } else {
+        errorBox.textContent = 'Usuario o contraseña incorrectos.';
+      }
+    });
+  </script>
+</body>
+</html>
