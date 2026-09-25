@@ -1,18 +1,54 @@
 // ---------- Módulo Reportes ----------
 
-const filtroTipoSelect = document.getElementById('filtroTipo');
-TIPOS_HUEVO.forEach(tipo => {
-  const opt = document.createElement('option');
-  opt.value = tipo;
-  opt.textContent = tipo;
-  filtroTipoSelect.appendChild(opt);
+// Dropdown personalizado para "Tipo de huevo" (evita el estilo nativo
+// inconsistente del <select> en navegadores móviles).
+const filtroTipoBtn = document.getElementById('filtroTipoBtn');
+const filtroTipoPanel = document.getElementById('filtroTipoPanel');
+const filtroTipoLabel = document.getElementById('filtroTipoLabel');
+const filtroTipoHidden = document.getElementById('filtroTipo');
+
+function construirPanelTipos() {
+  const opciones = [{ value: '', text: 'Todos' }, ...TIPOS_HUEVO.map(t => ({ value: t, text: t }))];
+  filtroTipoPanel.innerHTML = opciones.map(op => `
+    <div class="custom-select-option ${filtroTipoHidden.value === op.value ? 'active' : ''}" data-value="${op.value}">${op.text}</div>
+  `).join('');
+
+  filtroTipoPanel.querySelectorAll('.custom-select-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      filtroTipoHidden.value = opt.dataset.value;
+      filtroTipoLabel.textContent = opt.dataset.value === '' ? 'Todos' : opt.dataset.value;
+      cerrarPanelTipo();
+      construirPanelTipos();
+    });
+  });
+}
+
+function abrirPanelTipo() {
+  filtroTipoPanel.classList.add('open');
+  filtroTipoBtn.classList.add('open');
+}
+function cerrarPanelTipo() {
+  filtroTipoPanel.classList.remove('open');
+  filtroTipoBtn.classList.remove('open');
+}
+
+filtroTipoBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  filtroTipoPanel.classList.contains('open') ? cerrarPanelTipo() : abrirPanelTipo();
 });
+document.addEventListener('click', (e) => {
+  if (!filtroTipoPanel.contains(e.target) && e.target !== filtroTipoBtn) cerrarPanelTipo();
+});
+
+construirPanelTipos();
 
 document.getElementById('btnAplicarFiltro').addEventListener('click', refrescarReportes);
 document.getElementById('btnLimpiarFiltro').addEventListener('click', () => {
   document.getElementById('filtroDesde').value = '';
   document.getElementById('filtroHasta').value = '';
-  filtroTipoSelect.value = '';
+  filtroTipoHidden.value = '';
+  filtroTipoLabel.textContent = 'Todos';
+  construirPanelTipos();
   refrescarReportes();
 });
 document.getElementById('btnExportar').addEventListener('click', exportarExcel);
@@ -21,7 +57,7 @@ document.getElementById('btnEnviarWhatsapp').addEventListener('click', enviarPor
 function obtenerRegistrosFiltrados() {
   const desde = document.getElementById('filtroDesde').value;
   const hasta = document.getElementById('filtroHasta').value;
-  const tipo = filtroTipoSelect.value;
+  const tipo = filtroTipoHidden.value;
 
   return getRegistros()
     .filter(r => (!desde || r.fecha >= desde))
@@ -138,7 +174,7 @@ function renderStatsReportes(registros) {
     { label: 'Registros en el período', value: registros.length, cls: '' },
     { label: 'Producción bruta', value: `${totalBruto} uds`, cls: 'blue' },
     { label: 'Producción neta', value: `${totalNeto} uds`, cls: 'green' },
-    { label: '% de bajas', value: `${porcentajeBajas}%`, cls: 'red' },
+    { label: 'Bajas', value: `${totalBajas} uds (${porcentajeBajas}%)`, cls: 'red' },
   ];
 
   document.getElementById('statsReportes').innerHTML = stats.map(s => `
@@ -193,12 +229,56 @@ function enviarPorWhatsapp() {
   const rango = (desde || hasta)
     ? `del ${desde ? formatFecha(desde) : '...'} al ${hasta ? formatFecha(hasta) : 'hoy'}`
     : '(todos los registros)';
-  const totalNeto = registros.reduce((s, r) => s + calcularNeto(r), 0);
 
-  const mensaje = `Hola, te comparto el reporte de producción de Avícola R&R ${rango}.\nProducción neta total: ${totalNeto} unidades.\n(Se acaba de descargar el archivo Excel en este equipo, por favor adjúntalo a este chat).`;
+  const totalBruto = registros.reduce((s, r) => s + totalUnidades(r.totalFlanes, r.totalUnidades), 0);
+  const totalBajas = registros.reduce((s, r) => s + totalUnidades(r.bajaFlanes, r.bajaUnidades), 0);
+  const totalNeto = registros.reduce((s, r) => s + calcularNeto(r), 0);
+  const porcentajeBajas = totalBruto > 0 ? ((totalBajas / totalBruto) * 100).toFixed(1) : '0.0';
+
+  const porTipo = {};
+  TIPOS_HUEVO.forEach(t => porTipo[t] = { neto: 0, bajas: 0 });
+  registros.forEach(r => {
+    porTipo[r.tipo].neto += calcularNeto(r);
+    porTipo[r.tipo].bajas += totalUnidades(r.bajaFlanes, r.bajaUnidades);
+  });
+  const detalleTipos = Object.entries(porTipo)
+    .filter(([, v]) => v.neto > 0 || v.bajas > 0)
+    .map(([tipo, v]) => `• ${tipo}: ${v.neto} uds netas (bajas: ${v.bajas})`)
+    .join('\n');
+
+  const detalleDias = agruparPorFechaTexto(registros);
+
+  const mensaje = [
+    `Hola, te comparto el reporte de producción de Avícola R&R ${rango}.`,
+    '',
+    'Detalle por tipo de huevo:',
+    detalleTipos || 'Sin datos',
+    '',
+    'Detalle por día:',
+    detalleDias || 'Sin datos',
+    '',
+    `Producción bruta: ${totalBruto} uds`,
+    `Bajas: ${totalBajas} uds (${porcentajeBajas}%)`,
+    `Producción neta: ${totalNeto} uds`,
+    `Registros incluidos: ${registros.length}`,
+    '',
+    '(Se acaba de descargar el archivo Excel en este equipo, por favor adjúntalo a este chat).',
+  ].join('\n');
 
   const numero = getWhatsappReportes();
   window.open(toWaLink(numero, mensaje), '_blank');
+}
+
+function agruparPorFechaTexto(registros) {
+  const grupos = agruparPorFecha(registros);
+  const fechas = Object.keys(grupos).sort((a, b) => b.localeCompare(a));
+  return fechas.map(fecha => {
+    const items = grupos[fecha];
+    const neto = items.reduce((s, r) => s + calcularNeto(r), 0);
+    const bajas = items.reduce((s, r) => s + totalUnidades(r.bajaFlanes, r.bajaUnidades), 0);
+    const tipos = items.map(r => `${r.tipo}: ${calcularNeto(r)}`).join(', ');
+    return `• ${formatFecha(fecha)} — ${tipos} | Neto día: ${neto} uds, bajas: ${bajas} uds`;
+  }).join('\n');
 }
 
 function generarArchivoExcel(registros) {

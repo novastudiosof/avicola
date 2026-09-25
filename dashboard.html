@@ -3,9 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>Avícola R&R | Panel</title>
 <link rel="icon" href="assets/logo.jpg" />
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/style.css?v=3" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -58,11 +61,14 @@
                 <label>Hasta</label>
                 <input type="date" id="filtroHasta" />
               </div>
-              <div class="field">
-                <label>Tipo de huevo</label>
-                <select id="filtroTipo">
-                  <option value="">Todos</option>
-                </select>
+              <div class="field custom-select-wrap">
+                <label id="filtroTipoLabelTxt">Tipo de huevo</label>
+                <button type="button" class="custom-select-trigger" id="filtroTipoBtn">
+                  <span id="filtroTipoLabel">Todos</span>
+                  <span class="chevron">▾</span>
+                </button>
+                <div class="custom-select-panel" id="filtroTipoPanel"></div>
+                <input type="hidden" id="filtroTipo" value="" />
               </div>
               <button class="btn btn-secondary" id="btnAplicarFiltro">Aplicar filtro</button>
               <button class="btn btn-secondary" id="btnLimpiarFiltro">Limpiar</button>
@@ -189,11 +195,11 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/whatsapp.js"></script>
-  <script src="js/registros.js"></script>
-  <script src="js/reportes.js"></script>
-  <script src="js/ajustes.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/data.js?v=3"></script>
+  <script src="js/whatsapp.js?v=3"></script>
+  <script src="js/registros.js?v=3"></script>
+  <script src="js/reportes.js?v=3"></script>
+  <script src="js/ajustes.js?v=3"></script>
+  <script src="js/app.js?v=3"></script>
 </body>
 </html>
